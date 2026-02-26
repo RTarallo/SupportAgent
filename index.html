@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triagem de Chamados · Divi</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #383DAE;
+    --primary-dark: #2d2a8a;
+    --danger: #EA356B;
+    --dark: #292929;
+    --strong: #373737;
+    --medium: #6D6A6A;
+    --base: #AEAEAE;
+    --light: #EBEBEB;
+    --bright: #F9F9F9;
+    --clean-blue: #F7F7FC;
+    --white: #ffffff;
+    --sans: 'Open Sans', -apple-system, Roboto, Helvetica, sans-serif;
+    --title: 'Poppins', -apple-system, sans-serif;
+  }
+
+  body {
+    background: var(--bright);
+    color: var(--dark);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--light);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--primary);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-family: var(--title);
+    font-size: 14px; font-weight: 700;
+  }
+  .logo-text { font-family: var(--title); font-size: 15px; font-weight: 700; color: var(--dark); }
+  .logo-divider { width: 1px; height: 20px; background: var(--light); margin: 0 4px; }
+  .header-subtitle { font-size: 13px; font-weight: 600; color: var(--medium); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 9999px; background: var(--primary); color: white; border: none;
+    padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s; white-space: nowrap;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 9999px; background: transparent; color: var(--primary);
+    border: 1.5px solid var(--primary); padding: 7px 18px;
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-outline:hover { background: var(--clean-blue); }
+  .btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 9999px; background: transparent; color: var(--medium);
+    border: 1.5px solid var(--light); padding: 7px 16px;
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: var(--clean-blue); }
+  .btn-ghost.ctx-active { border-color: #36C474; color: #03733F; background: rgba(54,196,116,0.08); }
+
+  .btn-danger-outline {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 9999px; background: transparent; color: var(--danger);
+    border: 1.5px solid var(--danger); padding: 7px 18px;
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-danger-outline:hover { background: rgba(234,53,107,0.06); }
+  .btn-danger-outline:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .page-wrapper {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+  }
+
+  .left-panel {
+    background: var(--white);
+    border-right: 1px solid var(--light);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .panel-title-bar {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--light);
+  }
+  .panel-title { font-family: var(--title); font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+  .panel-desc { font-size: 12px; color: var(--medium); }
+  .panel-body { padding: 20px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-size: 11px; font-weight: 700; color: var(--dark); letter-spacing: 0.02em; text-transform: uppercase; }
+
+  textarea, input, select {
+    width: 100%; background: var(--white); border: 1.5px solid var(--light);
+    border-radius: 10px; color: var(--strong); font-family: var(--sans);
+    font-size: 13px; padding: 10px 14px; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; appearance: none;
+  }
+  textarea:focus, input:focus, select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(56,61,174,0.08);
+  }
+  textarea::placeholder, input::placeholder { color: var(--base); }
+  textarea { min-height: 140px; resize: vertical; line-height: 1.6; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236D6A6A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer;
+  }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 9999px; font-size: 11px; font-weight: 600; padding: 3px 10px;
+  }
+  .chip-critica { background: rgba(234,53,107,0.15); color: #D5164F; }
+  .chip-alta { background: rgba(254,215,101,0.25); color: #D49100; }
+  .chip-media { background: rgba(121,156,234,0.20); color: #0F2D85; }
+  .chip-baixa { background: rgba(54,196,116,0.20); color: #03733F; }
+
+  .right-panel { display: flex; flex-direction: column; background: var(--clean-blue); overflow: hidden; }
+  .right-panel-header {
+    background: var(--white); border-bottom: 1px solid var(--light);
+    padding: 16px 28px; display: flex; align-items: center; gap: 10px;
+  }
+  .right-panel-header h2 { font-family: var(--title); font-size: 15px; font-weight: 700; color: var(--dark); }
+  .ticket-badge {
+    margin-left: auto; font-size: 11px; font-weight: 600; color: var(--medium);
+    background: var(--bright); border: 1px solid var(--light);
+    border-radius: 9999px; padding: 3px 10px;
+  }
+
+  .right-panel-body { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; }
+
+  .state-center {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px; text-align: center;
+  }
+  .state-icon {
+    width: 56px; height: 56px; background: var(--light); border-radius: 16px;
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+  }
+  .state-title { font-size: 14px; font-weight: 600; color: var(--medium); }
+  .state-sub { font-size: 12px; color: var(--base); max-width: 220px; line-height: 1.5; }
+
+  .spinner {
+    width: 28px; height: 28px; border: 2.5px solid var(--light);
+    border-top-color: var(--primary); border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .card { background: var(--white); border: 1px solid var(--light); border-radius: 14px; overflow: hidden; }
+  .card-header {
+    padding: 13px 18px; border-bottom: 1px solid var(--light);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-header-title { font-size: 11px; font-weight: 700; color: var(--dark); text-transform: uppercase; letter-spacing: 0.04em; }
+  .card-body { padding: 16px 18px; }
+
+  .verdict-card {
+    background: var(--white); border: 1px solid var(--light); border-radius: 14px;
+    padding: 18px 20px; display: flex; align-items: center; gap: 16px;
+  }
+  .verdict-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+  }
+  .verdict-icon-n2 { background: rgba(54,196,116,0.12); }
+  .verdict-icon-n3 { background: rgba(234,53,107,0.10); }
+  .verdict-label { font-family: var(--title); font-size: 18px; font-weight: 700; line-height: 1.2; }
+  .verdict-label-n2 { color: #03733F; }
+  .verdict-label-n3 { color: var(--danger); }
+  .verdict-sub { font-size: 12px; color: var(--medium); margin-top: 2px; }
+
+  .conf-bar-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--medium); margin-bottom: 5px; }
+  .conf-bar-track { height: 5px; background: var(--light); border-radius: 9999px; overflow: hidden; }
+  .conf-bar-fill { height: 100%; border-radius: 9999px; transition: width 1s ease; }
+
+  .step-item { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--bright); }
+  .step-item:last-child { border-bottom: none; }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--clean-blue);
+    color: var(--primary); font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .step-text { font-size: 13px; color: var(--strong); line-height: 1.5; }
+
+  .tag {
+    display: inline-flex; align-items: center; border-radius: 9999px;
+    background: var(--clean-blue); color: var(--primary);
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border: 1px solid rgba(56,61,174,0.15);
+  }
+
+  .n3-msg-box {
+    background: var(--bright); border: 1px solid var(--light); border-radius: 10px;
+    padding: 14px; font-size: 12px; color: var(--strong); line-height: 1.7; white-space: pre-wrap;
+  }
+
+  .action-footer {
+    background: var(--white); border-top: 1px solid var(--light);
+    padding: 14px 28px; display: flex; align-items: center; gap: 10px;
+  }
+
+  .divider { height: 1px; background: var(--light); }
+
+  .history-label { font-size: 11px; font-weight: 700; color: var(--medium); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .history-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+    background: var(--bright); border: 1px solid var(--light); border-radius: 9px;
+    cursor: pointer; transition: border-color 0.2s; margin-bottom: 6px;
+  }
+  .history-item:hover { border-color: var(--primary); }
+  .hi-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .hi-text { font-size: 12px; color: var(--medium); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hi-verdict { font-size: 10px; font-weight: 700; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(3px); z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--white); border: 1px solid var(--light); border-radius: 18px;
+    width: 600px; max-width: 92vw; max-height: 82vh;
+    display: flex; flex-direction: column;
+    transform: translateY(14px) scale(0.98); transition: transform 0.2s;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal-head {
+    padding: 18px 22px 16px; border-bottom: 1px solid var(--light);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .modal-head-icon {
+    width: 36px; height: 36px; background: var(--clean-blue); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .modal-head-title { font-family: var(--title); font-size: 15px; font-weight: 700; color: var(--dark); }
+  .modal-head-sub { font-size: 11px; color: var(--medium); margin-top: 1px; }
+  .btn-close { background: none; border: none; color: var(--base); cursor: pointer; font-size: 20px; line-height: 1; padding: 4px; border-radius: 6px; transition: color 0.2s; margin-left: auto; }
+  .btn-close:hover { color: var(--dark); }
+  .modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .modal-foot { padding: 14px 22px; border-top: 1px solid var(--light); display: flex; align-items: center; gap: 10px; }
+  .ctx-chars { font-size: 11px; color: var(--base); }
+  .hint-box {
+    background: var(--clean-blue); border: 1px solid rgba(56,61,174,0.12); border-radius: 10px;
+    padding: 11px 14px; font-size: 12px; color: var(--primary); line-height: 1.6;
+  }
+  #ctx-textarea { min-height: 240px; font-size: 13px; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">D</div>
+    <span class="logo-text">Divi</span>
+  </div>
+  <div class="logo-divider"></div>
+  <span class="header-subtitle">Triagem de Chamados N1</span>
+  <div class="header-right">
+    <button class="btn-ghost" id="btn-open-apikey" onclick="abrirApiKey()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      <span id="apikey-btn-label">API Key</span>
+    </button>
+    <button class="btn-ghost" id="btn-open-ctx" onclick="abrirContexto()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      <span id="ctx-btn-label">Contexto</span>
+    </button>
+  </div>
+</header>
+
+<div class="page-wrapper">
+
+  <!-- Left -->
+  <div class="left-panel">
+    <div class="panel-title-bar">
+      <div class="panel-title">Novo Chamado</div>
+      <div class="panel-desc">Cole o relato do atendente N1 para análise</div>
+    </div>
+    <div class="panel-body">
+
+      <div class="field-group">
+        <label class="field-label">Descrição do Problema</label>
+        <textarea id="ticket-text" placeholder="Cole aqui o relato do atendente N1 ou a descrição do problema do cliente..."></textarea>
+      </div>
+
+      <div class="meta-grid">
+        <div class="field-group">
+          <label class="field-label">Cliente / Empresa</label>
+          <input id="cliente" type="text" placeholder="Nome do cliente">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Canal de Entrada</label>
+          <select id="canal">
+            <option value="email">E-mail</option>
+            <option value="telefone">Telefone</option>
+            <option value="chat">Chat</option>
+            <option value="portal">Portal</option>
+            <option value="whatsapp">WhatsApp</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Módulo / Sistema</label>
+          <input id="modulo" type="text" placeholder="Ex: Login, API, Relatórios...">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Tentativas N1</label>
+          <select id="tentativas">
+            <option value="nenhuma">Nenhuma</option>
+            <option value="basicas">Básicas (cache, reload)</option>
+            <option value="avancadas">Avançadas</option>
+            <option value="exauridas">Exauridas</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-analyze" onclick="analisarTicket()" style="width:100%; justify-content:center; padding:11px 20px; border-radius:10px; font-size:14px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Analisar Chamado
+      </button>
+
+      <div id="history-section" style="display:none">
+        <div class="divider"></div>
+        <div style="margin-top:14px;">
+          <div class="history-label">Histórico Recente</div>
+          <div id="history-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="right-panel">
+    <div class="right-panel-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <h2>Análise do Agente</h2>
+      <span class="ticket-badge" id="ticket-id" style="display:none"></span>
+    </div>
+
+    <div class="state-center" id="empty-state">
+      <div class="state-icon">🤖</div>
+      <div class="state-title">Aguardando chamado</div>
+      <div class="state-sub">Preencha o formulário ao lado e clique em Analisar</div>
+    </div>
+
+    <div class="state-center" id="loading-state" style="display:none">
+      <div class="spinner"></div>
+      <div class="state-title">Analisando chamado...</div>
+      <div class="state-sub">O agente está interpretando o problema</div>
+    </div>
+
+    <div class="right-panel-body" id="result-content" style="display:none">
+
+      <div class="verdict-card">
+        <div class="verdict-icon" id="verdict-icon">🔍</div>
+        <div style="flex:1">
+          <div class="verdict-label" id="verdict-text">—</div>
+          <div class="verdict-sub" id="verdict-sub"></div>
+        </div>
+        <div id="priority-chip" class="chip"></div>
+      </div>
+
+      <!-- Intelligence Card -->
+      <div class="card">
+        <div class="card-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span class="card-header-title">Inteligência do Chamado</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="intel-grid"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="card-header-title">Resumo & Diagnóstico</span>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--medium);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Resumo</div>
+            <div id="resumo" style="font-size:13px;color:var(--strong);line-height:1.6;"></div>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--medium);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Diagnóstico</div>
+            <div id="diagnostico" style="font-size:13px;color:var(--strong);line-height:1.6;"></div>
+          </div>
+          <div>
+            <div class="conf-bar-labels">
+              <span>Confiança da análise</span>
+              <span id="conf-pct" style="font-weight:600;color:var(--dark);"></span>
+            </div>
+            <div class="conf-bar-track">
+              <div class="conf-bar-fill" id="conf-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span class="card-header-title">Próximos Passos</span>
+        </div>
+        <div class="card-body">
+          <div id="steps-list"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span class="card-header-title">Tags</span>
+        </div>
+        <div class="card-body">
+          <div id="tags-list" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+      </div>
+
+      <div class="card" id="n3-section" style="display:none">
+        <div class="card-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <span class="card-header-title" style="color:var(--danger);">Mensagem para N3</span>
+          <button id="btn-copy-n3" onclick="copiarN3()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--medium);font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px;font-family:var(--sans);padding:0;transition:color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--medium)'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copiar
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="n3-msg-box" id="n3-msg"></div>
+        </div>
+      </div>
+
+      <!-- Slack Message Card -->
+      <div class="card" id="slack-section">
+        <div class="card-header" id="slack-card-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" id="slack-icon"><path d="M22.08 9C19.56 1.1 11.29-1.18 5.25 2.74A10 10 0 0 0 2 12a10 10 0 0 0 10 10c5.52 0 10-4.48 10-10 0-.35-.02-.69-.05-1.03"/><path d="M5 12H2M22 12h-3M12 5V2M12 22v-3"/></svg>
+          <span class="card-header-title" id="slack-card-title">Mensagem para o Slack</span>
+          <button id="btn-copy-slack" onclick="copiarSlack()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--medium);font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px;font-family:var(--sans);padding:0;transition:color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--medium)'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copiar
+          </button>
+        </div>
+        <div class="card-body">
+          <div style="font-size:11px;color:var(--medium);margin-bottom:8px;">Texto formatado para colar direto no Slack</div>
+          <div class="n3-msg-box" id="slack-msg" style="font-family:monospace;font-size:12px;white-space:pre-wrap;"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="action-footer" id="action-footer" style="display:none">
+      <button class="btn-outline" onclick="tomarAcao('resolver')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Resolver (N2)
+      </button>
+      <button class="btn-danger-outline" onclick="tomarAcao('escalar')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        Escalar para N3
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="apikey-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      </div>
+      <div>
+        <div class="modal-head-title">Chave da API OpenAI</div>
+        <div class="modal-head-sub">Salva localmente no seu navegador, nunca enviada a servidores</div>
+      </div>
+      <button class="btn-close" onclick="fecharApiKey()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="hint-box">
+        🔑 Sua chave fica salva apenas no <strong>localStorage</strong> do seu navegador. Ela nunca é enviada a nenhum servidor externo além da OpenAI.
+      </div>
+      <div class="field-group">
+        <label class="field-label">OpenAI API Key</label>
+        <input id="apikey-input" type="password" placeholder="sk-proj-...">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="limparApiKey()">Limpar</button>
+      <button class="btn-primary" onclick="salvarApiKey()" style="margin-left:auto;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Context Modal -->
+<div class="modal-overlay" id="ctx-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      </div>
+      <div>
+        <div class="modal-head-title">Contexto da Operação</div>
+        <div class="modal-head-sub">Injetado automaticamente em toda análise</div>
+      </div>
+      <button class="btn-close" onclick="fecharContexto()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="hint-box">
+        💡 Descreva seus sistemas, o que você (N2) consegue resolver, o que vai para dev (N3), SLAs por cliente, integrações críticas e qualquer contexto relevante da sua operação.
+      </div>
+      <div class="field-group">
+        <label class="field-label">Contexto</label>
+        <textarea id="ctx-textarea" placeholder="Ex:
+Somos uma empresa SaaS B2B com os sistemas:
+- Portal Web (React + Node.js)
+- API REST (Python/FastAPI)
+- Banco: PostgreSQL na AWS RDS
+
+N2 resolve: permissões, configurações, resets, orientações.
+N3 recebe: erros 500, bugs, falhas de integração, banco.
+
+Clientes Gold: SLA 4h. Standard: SLA 24h.
+Integrações críticas: Stripe, SendGrid, AWS S3."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="ctx-chars" id="ctx-chars">0 caracteres</span>
+      <button class="btn-ghost" onclick="limparContexto()">Limpar</button>
+      <button class="btn-primary" onclick="salvarContexto()" style="margin-left:auto;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Salvar Contexto
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let ticketCount = parseInt(localStorage.getItem('tc') || '0');
+let history = JSON.parse(localStorage.getItem('th') || '[]');
+let currentAnalysis = null;
+let operationContext = localStorage.getItem('op_ctx') || '';
+let openaiKey = localStorage.getItem('openai_key') || '';
+
+updateCtxIndicator();
+updateApiKeyIndicator();
+renderHistory();
+
+function updateApiKeyIndicator() {
+  const btn = document.getElementById('btn-open-apikey');
+  const label = document.getElementById('apikey-btn-label');
+  if (openaiKey.trim()) {
+    btn.classList.add('ctx-active');
+    label.textContent = 'API Key ativa';
+  } else {
+    btn.classList.remove('ctx-active');
+    label.textContent = 'API Key';
+  }
+}
+function abrirApiKey() {
+  document.getElementById('apikey-input').value = openaiKey;
+  document.getElementById('apikey-modal').classList.add('open');
+}
+function fecharApiKey() { document.getElementById('apikey-modal').classList.remove('open'); }
+function salvarApiKey() {
+  openaiKey = document.getElementById('apikey-input').value.trim();
+  try { localStorage.setItem('openai_key', openaiKey); } catch(e){}
+  updateApiKeyIndicator();
+  fecharApiKey();
+}
+function limparApiKey() { document.getElementById('apikey-input').value = ''; }
+document.getElementById('apikey-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('apikey-modal')) fecharApiKey();
+});
+
+function updateCtxIndicator() {
+  const btn = document.getElementById('btn-open-ctx');
+  const label = document.getElementById('ctx-btn-label');
+  if (operationContext.trim()) {
+    btn.classList.add('ctx-active');
+    label.textContent = 'Contexto ativo';
+  } else {
+    btn.classList.remove('ctx-active');
+    label.textContent = 'Contexto';
+  }
+}
+
+function abrirContexto() {
+  document.getElementById('ctx-textarea').value = operationContext;
+  atualizarChars();
+  document.getElementById('ctx-modal').classList.add('open');
+}
+function fecharContexto() { document.getElementById('ctx-modal').classList.remove('open'); }
+function atualizarChars() {
+  document.getElementById('ctx-chars').textContent = document.getElementById('ctx-textarea').value.length + ' caracteres';
+}
+function salvarContexto() {
+  operationContext = document.getElementById('ctx-textarea').value.trim();
+  try { localStorage.setItem('op_ctx', operationContext); } catch(e){}
+  updateCtxIndicator();
+  fecharContexto();
+}
+function limparContexto() {
+  document.getElementById('ctx-textarea').value = '';
+  atualizarChars();
+}
+document.getElementById('ctx-textarea').addEventListener('input', atualizarChars);
+document.getElementById('ctx-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('ctx-modal')) fecharContexto();
+});
+
+function gerarTicketId() {
+  ticketCount++;
+  try { localStorage.setItem('tc', ticketCount); } catch(e){}
+  return 'TK-' + String(ticketCount).padStart(4, '0');
+}
+
+function renderHistory() {
+  if (!history.length) return;
+  document.getElementById('history-section').style.display = 'block';
+  document.getElementById('history-list').innerHTML = history.slice(-5).reverse().map(h => {
+    const isN2 = h.verdict.includes('N2');
+    return `<div class="history-item">
+      <div class="hi-dot" style="background:${isN2 ? '#36C474' : '#EA356B'}"></div>
+      <div class="hi-text">${h.resumo}</div>
+      <div class="hi-verdict" style="color:${isN2 ? '#03733F' : '#D5164F'}">${isN2 ? 'N2' : 'N3'}</div>
+    </div>`;
+  }).join('');
+}
+
+async function analisarTicket() {
+  const texto = document.getElementById('ticket-text').value.trim();
+  if (!texto) {
+    const ta = document.getElementById('ticket-text');
+    ta.style.borderColor = 'var(--danger)';
+    ta.style.boxShadow = '0 0 0 3px rgba(234,53,107,0.1)';
+    ta.focus();
+    setTimeout(() => { ta.style.borderColor = ''; ta.style.boxShadow = ''; }, 1500);
+    return;
+  }
+
+  const cliente = document.getElementById('cliente').value || 'Não informado';
+  const canal = document.getElementById('canal').value;
+  const modulo = document.getElementById('modulo').value || 'Não informado';
+  const tentativas = document.getElementById('tentativas').value;
+
+  const btn = document.getElementById('btn-analyze');
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;"></div> Analisando...';
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('loading-state').style.display = 'flex';
+  document.getElementById('result-content').style.display = 'none';
+  document.getElementById('action-footer').style.display = 'none';
+
+  const ticketId = gerarTicketId();
+  const tidEl = document.getElementById('ticket-id');
+  tidEl.textContent = ticketId;
+  tidEl.style.display = '';
+
+  const prompt = `Você é um agente especialista em triagem de chamados de suporte de uma empresa de pagamentos. Analise o chamado abaixo e retorne APENAS um JSON válido, sem markdown.
+${operationContext ? `\nCONTEXTO DA OPERAÇÃO (use sempre como referência):\n${operationContext}\n` : ''}
+CHAMADO:
+- Descrição: ${texto}
+- Cliente: ${cliente}
+- Canal: ${canal}
+- Módulo/Sistema: ${modulo}
+- Tentativas N1 já realizadas: ${tentativas}
+
+Retorne este JSON exato (sem campos extras, sem markdown):
+{
+  "verdict": "N2 - Resolver" ou "N3 - Escalar",
+  "prioridade": "crítica" ou "alta" ou "média" ou "baixa",
+  "resumo": "resumo objetivo do problema em 1-2 frases",
+  "diagnostico": "diagnóstico técnico: causa provável, impacto, contexto relevante (3-4 frases)",
+  "confianca": número entre 0 e 100,
+  "categoria": uma das opções: "link-de-pagamento" | "plugin" | "estorno" | "antifraude" | "split" | "boleto" | "pix" | "cartao" | "cobrança" | "conta" | "configuracao" | "outro",
+  "ambiente": "producao" ou "sandbox" ou "desconhecido",
+  "recorrencia": "pontual" ou "sistemico" ou "desconhecido",
+  "responsabilidade": "interno" ou "cliente" ou "externo" ou "desconhecido",
+  "bandeira_adquirente": "nome da bandeira ou adquirente afetado (Visa, Master, Elo, Pix, Boleto, Stone, Cielo, etc) ou null se não mencionado",
+  "codigo_erro": "código de erro mencionado (ex: 51, 57, 05) com significado resumido, ou null se não mencionado",
+  "impacto_financeiro": "estimativa de impacto financeiro se o cliente mencionar valores ou volume, ou null se não mencionado",
+  "passos": ["passo 1", "passo 2", "passo 3", "passo 4"],
+  "tags": ["tag1", "tag2", "tag3"],
+  "mensagem_n3": "mensagem formatada para passar ao time N3 com contexto completo, passos já tentados e hipótese de causa raiz (apenas se verdict for N3, senão string vazia)"
+}
+
+CRITÉRIOS DE ESCALONAMENTO:
+- N3 (Escalar): bugs de código, infraestrutura/banco, erros 5xx persistentes, falhas em integrações/APIs, dados corrompidos, múltiplos usuários afetados.
+- N2 (Resolver): configurações, permissões, orientações de uso, resets, problemas de uma única conta.
+
+CRITÉRIOS DE PRIORIDADE:
+- crítica: sistema completamente fora do ar, perda de dados, múltiplos clientes afetados simultaneamente.
+- alta: OBRIGATORIAMENTE use "alta" quando o problema estiver relacionado ao fluxo transacional, incluindo: transações com muitas falhas ou todas recusadas, falha no estorno, transação não aparece para estornar, link de pagamento não gera, erro na integração de plugins de pagamento. Qualquer problema que impeça ou comprometa o processamento de pagamentos é automaticamente "alta".
+- média: funcionalidade secundária com falha, problema afetando um único cliente sem impacto financeiro direto.
+- baixa: dúvida de uso, orientação, problema cosmético, lentidão leve.
+
+CRITÉRIOS DE RESPONSABILIDADE:
+- interno: problema no sistema da empresa (bug, infraestrutura, configuração da plataforma).
+- cliente: problema causado pelo próprio cliente (má configuração, saldo insuficiente, limite do cartão, dados errados).
+- externo: problema em serviço de terceiro (banco emissor, bandeira fora do ar, SEFAZ, gateway).`;
+
+  if (!openaiKey) {
+    abrirApiKey();
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Analisar Chamado';
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'flex';
+    return;
+  }
+
+  try {
+    const { OpenAI } = await import("https://esm.sh/openai");
+    const openai = new OpenAI({ apiKey: openaiKey, dangerouslyAllowBrowser: true });
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 1500,
+      temperature: 0.2,
+    });
+    const rawText = response.choices[0].message.content;
+    const clean = rawText.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    currentAnalysis = { ...result, ticketId, texto };
+    renderResult(result);
+
+    history.push({ resumo: result.resumo, verdict: result.verdict });
+    if (history.length > 20) history.shift();
+    try { localStorage.setItem('th', JSON.stringify(history)); } catch(e){}
+    renderHistory();
+
+  } catch(err) {
+    document.getElementById('loading-state').style.display = 'none';
+    const es = document.getElementById('empty-state');
+    es.style.display = 'flex';
+    es.innerHTML = `<div class="state-icon">⚠️</div><div class="state-title">Erro na análise</div><div class="state-sub">Verifique sua conexão e tente novamente</div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Analisar Chamado';
+}
+
+function renderResult(r) {
+  document.getElementById('loading-state').style.display = 'none';
+  const isN3 = r.verdict.includes('N3');
+
+  const vi = document.getElementById('verdict-icon');
+  vi.textContent = isN3 ? '🔺' : '✅';
+  vi.className = 'verdict-icon ' + (isN3 ? 'verdict-icon-n3' : 'verdict-icon-n2');
+
+  const vt = document.getElementById('verdict-text');
+  vt.textContent = r.verdict;
+  vt.className = 'verdict-label ' + (isN3 ? 'verdict-label-n3' : 'verdict-label-n2');
+
+  document.getElementById('verdict-sub').textContent = isN3 ? 'Requer atenção do time técnico' : 'Pode ser resolvido pelo N2';
+
+  const priMap = { 'crítica': 'chip-critica', 'alta': 'chip-alta', 'média': 'chip-media', 'baixa': 'chip-baixa' };
+  const pc = document.getElementById('priority-chip');
+  pc.className = 'chip ' + (priMap[r.prioridade] || 'chip-media');
+  pc.textContent = '▲ ' + r.prioridade;
+
+  document.getElementById('resumo').textContent = r.resumo;
+  document.getElementById('diagnostico').textContent = r.diagnostico;
+
+  // Intelligence grid
+  const intelItems = [
+    { label: 'Categoria', value: r.categoria || '—', icon: '📂' },
+    { label: 'Ambiente', value: r.ambiente || '—', icon: r.ambiente === 'producao' ? '🔴' : r.ambiente === 'sandbox' ? '🟡' : '⚪' },
+    { label: 'Recorrência', value: r.recorrencia || '—', icon: r.recorrencia === 'sistemico' ? '⚠️' : '📍' },
+    { label: 'Responsabilidade', value: r.responsabilidade || '—', icon: r.responsabilidade === 'interno' ? '🏠' : r.responsabilidade === 'externo' ? '🌐' : '👤' },
+    { label: 'Bandeira / Adquirente', value: r.bandeira_adquirente || '—', icon: '💳' },
+    { label: 'Código de Erro', value: r.codigo_erro || '—', icon: '🔢' },
+    { label: 'Impacto Financeiro', value: r.impacto_financeiro || '—', icon: '💰' },
+  ];
+  document.getElementById('intel-grid').innerHTML = intelItems.map(item => `
+    <div style="background:var(--bright);border:1px solid var(--light);border-radius:8px;padding:10px 12px;">
+      <div style="font-size:10px;font-weight:700;color:var(--medium);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;">${item.icon} ${item.label}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--dark);line-height:1.4;">${item.value}</div>
+    </div>
+  `).join('');
+
+  const conf = r.confianca || 0;
+  document.getElementById('conf-pct').textContent = conf + '%';
+  const fill = document.getElementById('conf-fill');
+  fill.style.width = '0%';
+  fill.style.background = conf > 75 ? '#36C474' : conf > 50 ? '#FED765' : '#EA356B';
+  setTimeout(() => fill.style.width = conf + '%', 100);
+
+  document.getElementById('steps-list').innerHTML = (r.passos || []).map((p, i) =>
+    `<div class="step-item"><div class="step-num">${i+1}</div><div class="step-text">${p}</div></div>`
+  ).join('');
+
+  document.getElementById('tags-list').innerHTML = (r.tags || []).map(t =>
+    `<span class="tag">${t}</span>`
+  ).join('');
+
+  const n3sec = document.getElementById('n3-section');
+  if (isN3 && r.mensagem_n3) {
+    n3sec.style.display = 'block';
+    document.getElementById('n3-msg').textContent = r.mensagem_n3;
+  } else {
+    n3sec.style.display = 'none';
+  }
+
+  // Slack message
+  const cliente = document.getElementById('cliente').value || 'Não informado';
+  const canal = document.getElementById('canal').value;
+  const modulo = document.getElementById('modulo').value || 'Não informado';
+  const slackMsg = gerarMensagemSlack(r, currentAnalysis.ticketId, cliente, canal, modulo);
+  document.getElementById('slack-msg').textContent = slackMsg;
+
+  // Update slack card style based on verdict
+  const slackHeader = document.getElementById('slack-card-header');
+  const slackTitle = document.getElementById('slack-card-title');
+  const slackIconEl = document.getElementById('slack-icon');
+  if (isN3) {
+    slackHeader.style.background = 'rgba(234,53,107,0.04)';
+    slackTitle.textContent = 'Mensagem para o Slack — Escalar N3';
+    slackIconEl.style.stroke = 'var(--danger)';
+  } else {
+    slackHeader.style.background = 'rgba(56,61,174,0.04)';
+    slackTitle.textContent = 'Mensagem para o Slack — Resolver N2';
+    slackIconEl.style.stroke = 'var(--primary)';
+  }
+
+  document.getElementById('result-content').style.display = 'flex';
+  document.getElementById('action-footer').style.display = 'flex';
+}
+
+function copiarN3() {
+  navigator.clipboard.writeText(document.getElementById('n3-msg').textContent).then(() => {
+    const btn = document.getElementById('btn-copy-n3');
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copiado!';
+    btn.style.color = '#03733F';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar';
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+
+function gerarMensagemSlack(r, ticketId, cliente, canal, modulo) {
+  const isN3 = r.verdict.includes('N3');
+  const priEmoji = { 'crítica': '🔴', 'alta': '🟠', 'média': '🟡', 'baixa': '🟢' };
+  const emoji = priEmoji[r.prioridade] || '🟡';
+  const dataHora = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+  const intelLines = [
+    r.categoria ? `• Categoria: ${r.categoria}` : null,
+    r.ambiente && r.ambiente !== 'desconhecido' ? `• Ambiente: ${r.ambiente}` : null,
+    r.recorrencia && r.recorrencia !== 'desconhecido' ? `• Recorrência: ${r.recorrencia}` : null,
+    r.responsabilidade && r.responsabilidade !== 'desconhecido' ? `• Responsabilidade: ${r.responsabilidade}` : null,
+    r.bandeira_adquirente ? `• Bandeira/Adquirente: ${r.bandeira_adquirente}` : null,
+    r.codigo_erro ? `• Código de erro: ${r.codigo_erro}` : null,
+    r.impacto_financeiro ? `• Impacto financeiro: ${r.impacto_financeiro}` : null,
+  ].filter(Boolean).join('\n');
+
+  const header = isN3
+    ? `🔺 *[${ticketId}] Chamado Escalado para N3*`
+    : `✅ *[${ticketId}] Chamado para Resolução N2*`;
+
+  return `${header}
+${emoji} Prioridade: *${r.prioridade.toUpperCase()}*
+
+*Cliente:* ${cliente}  |  *Canal:* ${canal}  |  *Módulo:* ${modulo}
+
+*📋 Resumo*
+${r.resumo}
+
+*🔍 Diagnóstico*
+${r.diagnostico}
+${intelLines ? `\n*ℹ️ Detalhes*\n${intelLines}` : ''}
+*✅ Próximos Passos*
+${(r.passos || []).map((p, i) => `${i+1}. ${p}`).join('\n')}
+
+*🏷️ Tags:* ${(r.tags || []).join(' · ')}
+
+_Triado em ${dataHora}_`;
+}
+
+function copiarSlack() {
+  navigator.clipboard.writeText(document.getElementById('slack-msg').textContent).then(() => {
+    const btn = document.getElementById('btn-copy-slack');
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copiado!';
+    btn.style.color = '#03733F';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar';
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+
+function tomarAcao(acao) {
+  if (!currentAnalysis) return;
+  const footer = document.getElementById('action-footer');
+  const isResolve = acao === 'resolver';
+  footer.innerHTML = `<div style="font-size:13px;font-weight:600;color:${isResolve ? '#03733F' : 'var(--danger)'};padding:10px 0;flex:1;text-align:center;">
+    ${isResolve ? '✓' : '↑'} Chamado ${currentAnalysis.ticketId} ${isResolve ? 'marcado para resolução N2' : 'escalado para N3'}.
+  </div>`;
+
+  setTimeout(() => {
+    document.getElementById('ticket-text').value = '';
+    document.getElementById('cliente').value = '';
+    document.getElementById('modulo').value = '';
+    document.getElementById('result-content').style.display = 'none';
+    footer.style.display = 'none';
+    document.getElementById('ticket-id').style.display = 'none';
+    const es = document.getElementById('empty-state');
+    es.style.display = 'flex';
+    es.innerHTML = `<div class="state-icon">🤖</div><div class="state-title">Aguardando chamado</div><div class="state-sub">Preencha o formulário ao lado e clique em Analisar</div>`;
+    footer.innerHTML = `
+      <button class="btn-outline" onclick="tomarAcao('resolver')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Resolver (N2)
+      </button>
+      <button class="btn-danger-outline" onclick="tomarAcao('escalar')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>Escalar para N3
+      </button>`;
+    currentAnalysis = null;
+  }, 2500);
+}
+
+document.getElementById('ticket-text').addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'Enter') analisarTicket();
+});
+</script>
+</body>
+</html>
