@@ -701,14 +701,7 @@ async function analisarTicket() {
   tidEl.textContent = ticketId;
   tidEl.style.display = '';
 
-  const prompt = `Você é um agente especialista em triagem de chamados de suporte de uma empresa de pagamentos. Analise o chamado abaixo e retorne APENAS um JSON válido, sem markdown.
-${operationContext ? `\nCONTEXTO DA OPERAÇÃO (use sempre como referência):\n${operationContext}\n` : ''}
-CHAMADO:
-- Descrição: ${texto}
-- Cliente: ${cliente}
-- Canal: ${canal}
-- Módulo/Sistema: ${modulo}
-- Tentativas N1 já realizadas: ${tentativas}
+  const systemPrompt = `Você é um agente especialista em triagem de chamados de suporte de uma empresa de pagamentos. Analise o chamado abaixo e retorne APENAS um JSON válido, sem markdown.
 
 Retorne este JSON exato (sem campos extras, sem markdown):
 {
@@ -744,6 +737,13 @@ CRITÉRIOS DE RESPONSABILIDADE:
 - cliente: problema causado pelo próprio cliente (má configuração, saldo insuficiente, limite do cartão, dados errados).
 - externo: problema em serviço de terceiro (banco emissor, bandeira fora do ar, SEFAZ, gateway).`;
 
+  const userMessage = `${operationContext ? `CONTEXTO DA OPERAÇÃO (use sempre como referência):\n${operationContext}\n\n` : ''}CHAMADO:
+- Descrição: ${texto}
+- Cliente: ${cliente}
+- Canal: ${canal}
+- Módulo/Sistema: ${modulo}
+- Tentativas N1 já realizadas: ${tentativas}`;
+
   if (!openaiKey) {
     abrirApiKey();
     btn.disabled = false;
@@ -758,7 +758,10 @@ CRITÉRIOS DE RESPONSABILIDADE:
     const openai = new OpenAI({ apiKey: openaiKey, dangerouslyAllowBrowser: true });
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage },
+      ],
       max_tokens: 1500,
       temperature: 0.2,
     });
