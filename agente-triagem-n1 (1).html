@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Triagem de Chamados · Divi</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -147,9 +146,9 @@
     border-radius: 9999px; font-size: 11px; font-weight: 600; padding: 3px 10px;
   }
   .chip-critica { background: rgba(234,53,107,0.15); color: #D5164F; }
-  .chip-alta    { background: rgba(234,53,107,0.12); color: #C0112E; }
-  .chip-media   { background: rgba(254,215,101,0.30); color: #A86800; }
-  .chip-baixa   { background: rgba(121,156,234,0.22); color: #0F2D85; }
+  .chip-alta { background: rgba(254,215,101,0.25); color: #D49100; }
+  .chip-media { background: rgba(121,156,234,0.20); color: #0F2D85; }
+  .chip-baixa { background: rgba(54,196,116,0.20); color: #03733F; }
 
   .right-panel { display: flex; flex-direction: column; background: var(--clean-blue); overflow: hidden; }
   .right-panel-header {
@@ -248,27 +247,6 @@
   .hi-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .hi-text { font-size: 12px; color: var(--medium); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .hi-verdict { font-size: 10px; font-weight: 700; }
-  .hi-status { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 9999px; flex-shrink: 0; }
-  .hi-status-ok { background: rgba(54,196,116,0.15); color: #03733F; }
-  .hi-status-pending { background: rgba(254,215,101,0.25); color: #D49100; }
-  .hi-status-inprogress { background: rgba(121,156,234,0.2); color: #0F2D85; }
-
-  .summary-view { padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; }
-  .summary-view .card-body { padding: 14px 18px; }
-  .summary-view .meta-line { font-size: 12px; color: var(--medium); margin-bottom: 8px; }
-  .summary-view .section-label { font-size: 11px; font-weight: 700; color: var(--medium); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
-  .summary-view .section-text { font-size: 13px; color: var(--strong); line-height: 1.6; }
-  .summary-view .btn-back { margin-bottom: 8px; align-self: flex-start; }
-  .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 9999px; }
-  .status-badge-ok { background: rgba(54,196,116,0.15); color: #03733F; border: 1px solid rgba(54,196,116,0.3); }
-  .status-badge-pending { background: rgba(254,215,101,0.2); color: #D49100; border: 1px solid rgba(254,215,101,0.5); }
-  .status-badge-inprogress { background: rgba(121,156,234,0.2); color: #0F2D85; border: 1px solid rgba(121,156,234,0.4); }
-  .btn-resolve { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; font-family: var(--sans); padding: 8px 16px; border-radius: 9px; border: 1.5px solid #36C474; background: rgba(54,196,116,0.08); color: #03733F; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-  .btn-resolve:hover { background: rgba(54,196,116,0.18); }
-  .btn-resolve:active { transform: scale(0.97); }
-  .btn-resolve:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-resolve-n3 { border-color: #EA356B; background: rgba(234,53,107,0.07); color: #D5164F; }
-  .btn-resolve-n3:hover { background: rgba(234,53,107,0.15); }
 
   /* Modal */
   .modal-overlay {
@@ -306,67 +284,10 @@
     padding: 11px 14px; font-size: 12px; color: var(--primary); line-height: 1.6;
   }
   #ctx-textarea { min-height: 240px; font-size: 13px; line-height: 1.7; }
-
-  /* Login screen */
-  .login-screen {
-    position: fixed; inset: 0; background: var(--bright);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 300; padding: 24px;
-  }
-  .login-screen.hidden { display: none; }
-  .login-logo { margin-bottom: 32px; }
-  .login-logo .logo-mark { width: 56px; height: 56px; font-size: 24px; }
-  .login-logo .logo-text { font-size: 22px; }
-  .login-card {
-    width: 100%; max-width: 380px;
-    background: var(--white); border: 1px solid var(--light); border-radius: 18px;
-    padding: 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.06);
-  }
-  .login-card h1 { font-family: var(--title); font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 24px; text-align: center; }
-  .login-error {
-    background: rgba(234,53,107,0.08); border: 1px solid rgba(234,53,107,0.2);
-    border-radius: 10px; padding: 10px 14px; font-size: 12px; color: var(--danger);
-    margin-bottom: 16px; display: none;
-  }
-  .login-error.visible { display: block; }
-  .login-card .field-group { margin-bottom: 16px; }
-  .login-card .btn-primary { width: 100%; justify-content: center; padding: 12px; border-radius: 10px; font-size: 14px; margin-top: 8px; }
-  .login-forgot { display: block; text-align: center; margin-top: 16px; font-size: 12px; color: var(--primary); text-decoration: none; }
-  .login-forgot:hover { text-decoration: underline; }
-  .app-wrap { display: flex; flex-direction: column; min-height: 100vh; }
-  .app-wrap.hidden { display: none; }
-  .header-user { font-size: 12px; color: var(--medium); margin-right: 8px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 </head>
 <body>
 
-<!-- Login screen -->
-<div class="login-screen" id="login-screen">
-  <div class="login-logo logo">
-    <div class="logo-mark">D</div>
-    <span class="logo-text">Divi</span>
-  </div>
-  <div class="login-card">
-    <h1>Entrar</h1>
-    <div class="login-error" id="login-error"></div>
-    <form id="login-form" onsubmit="return fazerLogin(event)">
-      <div class="field-group">
-        <label class="field-label">E-mail</label>
-        <input id="login-email" type="email" placeholder="seu@email.com" required autocomplete="email">
-      </div>
-      <div class="field-group">
-        <label class="field-label">Senha</label>
-        <input id="login-senha" type="password" placeholder="••••••••" required autocomplete="current-password">
-      </div>
-      <button type="submit" class="btn-primary">
-        Entrar
-      </button>
-    </form>
-    <a href="#" class="login-forgot" id="link-esqueci-senha">Esqueci minha senha</a>
-  </div>
-</div>
-
-<div class="app-wrap hidden" id="app-wrap">
 <header>
   <div class="logo">
     <div class="logo-mark">D</div>
@@ -375,11 +296,6 @@
   <div class="logo-divider"></div>
   <span class="header-subtitle">Triagem de Chamados N1</span>
   <div class="header-right">
-    <span class="header-user" id="header-user" title=""></span>
-    <button class="btn-ghost" id="btn-logout" onclick="fazerLogout()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Sair
-    </button>
     <button class="btn-ghost" id="btn-open-ctx" onclick="abrirContexto()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
       <span id="ctx-btn-label">Contexto</span>
@@ -466,44 +382,6 @@
       <div class="spinner"></div>
       <div class="state-title">Analisando chamado...</div>
       <div class="state-sub">O agente está interpretando o problema</div>
-    </div>
-
-    <div class="right-panel-body summary-view" id="summary-content" style="display:none">
-      <button type="button" class="btn-ghost btn-back" id="summary-btn-back">← Voltar</button>
-      <div class="card">
-        <div class="card-header" style="flex-wrap:wrap;gap:6px;">
-          <span class="card-header-title" id="summary-ticket-id">—</span>
-          <span class="chip" id="summary-priority-chip">—</span>
-          <span id="summary-status-badge" class="status-badge" style="margin-left:2px;"></span>
-          <button type="button" class="btn-resolve" id="summary-btn-marcar-resolvido" style="margin-left:auto;display:none;" onclick="marcarResolvido()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            Marcar como Resolvido
-          </button>
-        </div>
-        <div class="card-body">
-          <div class="meta-line" id="summary-meta"></div>
-          <div class="section-label">Resumo</div>
-          <div class="section-text" id="summary-resumo">—</div>
-          <div class="divider" style="margin:12px 0"></div>
-          <div class="section-label">Diagnóstico</div>
-          <div class="section-text" id="summary-diagnostico">—</div>
-          <div class="section-label" style="margin-top:12px">Próximos passos</div>
-          <div class="section-text" id="summary-passos">—</div>
-          <div class="section-label" style="margin-top:12px">Tags</div>
-          <div id="summary-tags" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-          <div id="summary-resolved-info" style="margin-top:14px;display:none;font-size:12px;font-weight:600;"></div>
-          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;" id="summary-classify-area">
-            <button type="button" class="btn-resolve" id="summary-btn-n2" onclick="classificarChamado('N2')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              Classificar como N2
-            </button>
-            <button type="button" class="btn-resolve btn-resolve-n3" id="summary-btn-n3" onclick="classificarChamado('N3')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-              Escalar para N3
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="right-panel-body" id="result-content" style="display:none">
@@ -664,175 +542,14 @@ Integrações críticas: Stripe, SendGrid, AWS S3."></textarea>
   </div>
 </div>
 
-</div><!-- /app-wrap -->
-
 <script>
-const SUPABASE_URL = 'https://zmuojqhvdyjcbbtdqbhg.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_T7wHXGTpWkZ_Pat8FzRgUw_m-2KUti2';
-
 let ticketCount = parseInt(localStorage.getItem('tc') || '0');
-let history = [];
+let history = JSON.parse(localStorage.getItem('th') || '[]');
 let currentAnalysis = null;
 let operationContext = localStorage.getItem('op_ctx') || '';
-let currentUser = null;
 
-function getSupabase() {
-  try {
-    const lib = typeof supabase !== 'undefined' ? supabase : (window.supabase || window.supabaseCreateClient);
-    if (lib && lib.createClient) return lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } catch (_) {}
-  return null;
-}
-
-async function loadHistoryFromSupabase() {
-  const supabase = getSupabase();
-  if (!supabase) return;
-  const { data: rows } = await supabase.from('chamados').select('id, ticket_id, created_at, cliente, canal, modulo, resumo, verdict, prioridade, diagnostico, passos, tags, verdict_final, resolvido_em').order('created_at', { ascending: false });
-  if (rows?.length) history = rows;
-  else history = [];
-  renderHistory();
-}
-
-async function loadContextoFromSupabase() {
-  const supabase = getSupabase();
-  if (!supabase || !currentUser) return;
-  const { data: row } = await supabase.from('contexto_operacao').select('body').eq('user_id', currentUser.id).maybeSingle();
-  operationContext = (row?.body != null && row.body !== '') ? row.body : '';
-  try { localStorage.setItem('op_ctx', operationContext); } catch (_) {}
-  updateCtxIndicator();
-}
-
-async function saveContextoToSupabase() {
-  const supabase = getSupabase();
-  if (!supabase || !currentUser) return;
-  try {
-    await supabase.from('contexto_operacao').upsert(
-      { user_id: currentUser.id, body: operationContext, updated_at: new Date().toISOString() },
-      { onConflict: 'user_id' }
-    );
-  } catch (e) { console.error('Erro ao salvar contexto no Supabase:', e); }
-}
-
-async function checkAuth() {
-  const supabase = getSupabase();
-  if (!supabase) return;
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user;
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('app-wrap').classList.remove('hidden');
-    document.getElementById('header-user').textContent = session.user.email || session.user.user_metadata?.name || 'Usuário';
-    document.getElementById('header-user').title = session.user.email || '';
-    updateCtxIndicator();
-    await loadContextoFromSupabase();
-    await loadHistoryFromSupabase();
-  }
-}
-
-async function fazerLogin(e) {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  const senha = document.getElementById('login-senha').value;
-  const errEl = document.getElementById('login-error');
-  errEl.classList.remove('visible');
-  errEl.textContent = '';
-  const supabase = getSupabase();
-  if (!supabase) {
-    errEl.textContent = 'Supabase não configurado. Defina SUPABASE_ANON_KEY no código.';
-    errEl.classList.add('visible');
-    return false;
-  }
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
-  if (error) {
-    errEl.textContent = error.message || 'E-mail ou senha incorretos.';
-    errEl.classList.add('visible');
-    return false;
-  }
-  currentUser = data.user;
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app-wrap').classList.remove('hidden');
-  document.getElementById('header-user').textContent = data.user.email || data.user.user_metadata?.name || 'Usuário';
-  document.getElementById('header-user').title = data.user.email || '';
-  updateCtxIndicator();
-  await loadContextoFromSupabase();
-  await loadHistoryFromSupabase();
-  return false;
-}
-
-async function fazerLogout() {
-  const supabase = getSupabase();
-  if (supabase) await supabase.auth.signOut();
-  currentUser = null;
-  document.getElementById('login-screen').classList.remove('hidden');
-  document.getElementById('app-wrap').classList.add('hidden');
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-senha').value = '';
-  document.getElementById('login-error').classList.remove('visible');
-}
-
-document.getElementById('link-esqueci-senha').addEventListener('click', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  if (!email) {
-    document.getElementById('login-error').textContent = 'Informe seu e-mail para redefinir a senha.';
-    document.getElementById('login-error').classList.add('visible');
-    return;
-  }
-  const supabase = getSupabase();
-  if (!supabase) return;
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
-  const errEl = document.getElementById('login-error');
-  if (error) {
-    errEl.textContent = error.message || 'Erro ao enviar e-mail.';
-    errEl.classList.add('visible');
-  } else {
-    errEl.textContent = 'E-mail enviado. Verifique sua caixa de entrada.';
-    errEl.style.background = 'rgba(54,196,116,0.1)';
-    errEl.style.color = '#03733F';
-    errEl.classList.add('visible');
-  }
-});
-
-(async function init() {
-  await checkAuth();
-})();
-
-async function saveToSupabase(result, ticketId, texto, cliente, canal, modulo, tentativas) {
-  const supabase = getSupabase();
-  if (!supabase || !currentUser) return;
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const slackMsg = gerarMensagemSlack(result, ticketId, cliente, canal, modulo);
-    const { error } = await supabase.from('chamados').insert({
-      user_id: user.id,
-      ticket_id: ticketId,
-      texto_original: texto,
-      cliente: cliente,
-      canal: canal,
-      modulo: modulo,
-      tentativas: tentativas,
-      contexto_operacao: operationContext || null,
-      verdict: result.verdict,
-      prioridade: result.prioridade,
-      resumo: result.resumo,
-      diagnostico: result.diagnostico,
-      confianca: result.confianca ?? null,
-      categoria: result.categoria || null,
-      ambiente: result.ambiente || null,
-      recorrencia: result.recorrencia || null,
-      responsabilidade: result.responsabilidade || null,
-      bandeira_adquirente: result.bandeira_adquirente || null,
-      codigo_erro: result.codigo_erro || null,
-      impacto_financeiro: result.impacto_financeiro || null,
-      passos: result.passos || null,
-      tags: result.tags || null,
-      mensagem_n3: result.mensagem_n3 || null,
-      mensagem_slack: slackMsg,
-    });
-    if (error) console.error('Supabase insert error:', error);
-  } catch (e) { console.error('Supabase save error:', e); }
-}
+updateCtxIndicator();
+renderHistory();
 
 function updateCtxIndicator() {
   const btn = document.getElementById('btn-open-ctx');
@@ -846,8 +563,7 @@ function updateCtxIndicator() {
   }
 }
 
-async function abrirContexto() {
-  if (currentUser) await loadContextoFromSupabase();
+function abrirContexto() {
   document.getElementById('ctx-textarea').value = operationContext;
   atualizarChars();
   document.getElementById('ctx-modal').classList.add('open');
@@ -856,11 +572,10 @@ function fecharContexto() { document.getElementById('ctx-modal').classList.remov
 function atualizarChars() {
   document.getElementById('ctx-chars').textContent = document.getElementById('ctx-textarea').value.length + ' caracteres';
 }
-async function salvarContexto() {
+function salvarContexto() {
   operationContext = document.getElementById('ctx-textarea').value.trim();
   try { localStorage.setItem('op_ctx', operationContext); } catch(e){}
   updateCtxIndicator();
-  await saveContextoToSupabase();
   fecharContexto();
 }
 function limparContexto() {
@@ -872,12 +587,6 @@ document.getElementById('ctx-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('ctx-modal')) fecharContexto();
 });
 
-function escapeHtml(s) {
-  const d = document.createElement('div');
-  d.textContent = s == null ? '' : s;
-  return d.innerHTML;
-}
-
 function gerarTicketId() {
   ticketCount++;
   try { localStorage.setItem('tc', ticketCount); } catch(e){}
@@ -885,167 +594,17 @@ function gerarTicketId() {
 }
 
 function renderHistory() {
-  const section = document.getElementById('history-section');
-  const list = document.getElementById('history-list');
-  if (!history.length) {
-    section.style.display = 'none';
-    return;
-  }
-  section.style.display = 'block';
-  list.innerHTML = history.map((h) => {
-    const isN2 = (h.verdict || '').includes('N2');
-    let statusClass, statusLabel;
-    if (h.resolvido_em) {
-      statusClass = 'hi-status-ok'; statusLabel = '✓ Resolvido';
-    } else if (h.verdict_final) {
-      statusClass = 'hi-status-inprogress'; statusLabel = 'Em andamento';
-    } else {
-      statusClass = 'hi-status-pending'; statusLabel = 'Pendente';
-    }
-    const resumo = (h.resumo || '—').slice(0, 70) + ((h.resumo || '').length > 70 ? '…' : '');
-    return `<div class="history-item" data-id="${escapeHtml(h.id)}" role="button" tabindex="0">
+  if (!history.length) return;
+  document.getElementById('history-section').style.display = 'block';
+  document.getElementById('history-list').innerHTML = history.slice(-5).reverse().map(h => {
+    const isN2 = h.verdict.includes('N2');
+    return `<div class="history-item">
       <div class="hi-dot" style="background:${isN2 ? '#36C474' : '#EA356B'}"></div>
-      <div class="hi-text">${escapeHtml(resumo)}</div>
+      <div class="hi-text">${h.resumo}</div>
       <div class="hi-verdict" style="color:${isN2 ? '#03733F' : '#D5164F'}">${isN2 ? 'N2' : 'N3'}</div>
-      <span class="hi-status ${statusClass}">${statusLabel}</span>
     </div>`;
   }).join('');
-  list.querySelectorAll('.history-item').forEach((el) => {
-    el.addEventListener('click', () => {
-      const id = el.getAttribute('data-id');
-      if (id) mostrarResumoChamado(id);
-    });
-  });
 }
-
-let currentSummaryId = null;
-
-function mostrarResumoChamado(id) {
-  const c = history.find((h) => h.id === id);
-  if (!c) return;
-  currentSummaryId = id;
-
-  document.getElementById('empty-state').style.display = 'none';
-  document.getElementById('result-content').style.display = 'none';
-  document.getElementById('action-footer').style.display = 'none';
-  document.getElementById('summary-content').style.display = 'flex';
-
-  const priMap = { 'crítica': 'chip-critica', 'alta': 'chip-alta', 'média': 'chip-media', 'baixa': 'chip-baixa' };
-  document.getElementById('summary-ticket-id').textContent = c.ticket_id || '—';
-
-  const pc = document.getElementById('summary-priority-chip');
-  pc.className = 'chip ' + (priMap[c.prioridade] || 'chip-media');
-  pc.textContent = '▲ ' + (c.prioridade || '—');
-
-  const sb = document.getElementById('summary-status-badge');
-  if (c.resolvido_em) {
-    sb.className = 'status-badge status-badge-ok';
-    sb.textContent = '✓ Resolvido';
-  } else if (c.verdict_final) {
-    sb.className = 'status-badge status-badge-inprogress';
-    sb.textContent = (c.verdict_final === 'N3' ? '🔺 N3 ' : '🔵 N2 ') + '· Em andamento';
-  } else {
-    sb.className = 'status-badge status-badge-pending';
-    sb.textContent = '● Pendente';
-  }
-
-  const created = c.created_at ? new Date(c.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
-  document.getElementById('summary-meta').textContent = `Cliente: ${c.cliente || '—'}  ·  Canal: ${c.canal || '—'}  ·  Módulo: ${c.modulo || '—'}  ·  ${created}`;
-  document.getElementById('summary-resumo').textContent = c.resumo || '—';
-  document.getElementById('summary-diagnostico').textContent = c.diagnostico || '—';
-  const passos = Array.isArray(c.passos) ? c.passos : [];
-  document.getElementById('summary-passos').textContent = passos.length ? passos.map((p, i) => `${i + 1}. ${p}`).join('\n') : '—';
-  const tags = Array.isArray(c.tags) ? c.tags : [];
-  document.getElementById('summary-tags').innerHTML = tags.length ? tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('') : '—';
-
-  const riEl = document.getElementById('summary-resolved-info');
-  const caEl = document.getElementById('summary-classify-area');
-  const btnMarcar = document.getElementById('summary-btn-marcar-resolvido');
-
-  if (c.resolvido_em) {
-    // Totalmente resolvido
-    const res = new Date(c.resolvido_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    const icon = c.verdict_final === 'N3' ? '🔺' : '✅';
-    const label = c.verdict_final === 'N3' ? 'Escalado para N3' : 'Classificado como N2';
-    riEl.style.display = 'block';
-    riEl.innerHTML = `${icon} ${label} · Resolvido em ${res}`;
-    riEl.style.color = c.verdict_final === 'N3' ? '#D5164F' : '#03733F';
-    caEl.style.display = 'none';
-    btnMarcar.style.display = 'none';
-  } else if (c.verdict_final) {
-    // Classificado mas ainda não resolvido
-    const icon = c.verdict_final === 'N3' ? '🔺' : '🔵';
-    const label = c.verdict_final === 'N3' ? 'Escalado para N3' : 'Classificado como N2';
-    riEl.style.display = 'block';
-    riEl.innerHTML = `${icon} ${label} · aguardando resolução`;
-    riEl.style.color = c.verdict_final === 'N3' ? '#D5164F' : '#0F2D85';
-    caEl.style.display = 'none';
-    btnMarcar.style.display = 'inline-flex';
-    btnMarcar.disabled = false;
-    btnMarcar.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Marcar como Resolvido';
-  } else {
-    // Sem classificação ainda
-    riEl.style.display = 'none';
-    caEl.style.display = 'flex';
-    btnMarcar.style.display = 'none';
-    document.getElementById('summary-btn-n2').disabled = false;
-    document.getElementById('summary-btn-n3').disabled = false;
-  }
-}
-
-async function classificarChamado(tipo) {
-  if (!currentSummaryId) return;
-  const supabase = getSupabase();
-  if (!supabase) return;
-
-  const btnN2 = document.getElementById('summary-btn-n2');
-  const btnN3 = document.getElementById('summary-btn-n3');
-  btnN2.disabled = true;
-  btnN3.disabled = true;
-  const spinner = '<div style="width:12px;height:12px;border:2px solid rgba(0,0,0,0.15);border-top-color:currentColor;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;"></div>';
-  if (tipo === 'N2') btnN2.innerHTML = spinner + ' Salvando...';
-  else btnN3.innerHTML = spinner + ' Salvando...';
-
-  // Classifica mas NÃO define resolvido_em
-  const { error } = await supabase.from('chamados').update({ verdict_final: tipo }).eq('id', currentSummaryId);
-  if (error) {
-    btnN2.disabled = false;
-    btnN3.disabled = false;
-    btnN2.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Classificar como N2';
-    btnN3.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg> Escalar para N3';
-    return;
-  }
-
-  await loadHistoryFromSupabase();
-  mostrarResumoChamado(currentSummaryId);
-}
-
-async function marcarResolvido() {
-  if (!currentSummaryId) return;
-  const supabase = getSupabase();
-  if (!supabase) return;
-
-  const btn = document.getElementById('summary-btn-marcar-resolvido');
-  btn.disabled = true;
-  btn.innerHTML = '<div style="width:12px;height:12px;border:2px solid rgba(3,115,63,0.3);border-top-color:#03733F;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;"></div> Salvando...';
-
-  const now = new Date().toISOString();
-  const { error } = await supabase.from('chamados').update({ resolvido_em: now }).eq('id', currentSummaryId);
-  if (error) {
-    btn.disabled = false;
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Marcar como Resolvido';
-    return;
-  }
-
-  await loadHistoryFromSupabase();
-  mostrarResumoChamado(currentSummaryId);
-}
-
-document.getElementById('summary-btn-back').addEventListener('click', () => {
-  document.getElementById('summary-content').style.display = 'none';
-  document.getElementById('empty-state').style.display = 'flex';
-  currentSummaryId = null;
-});
 
 async function analisarTicket() {
   const texto = document.getElementById('ticket-text').value.trim();
@@ -1070,7 +629,6 @@ async function analisarTicket() {
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('loading-state').style.display = 'flex';
   document.getElementById('result-content').style.display = 'none';
-  document.getElementById('summary-content').style.display = 'none';
   document.getElementById('action-footer').style.display = 'none';
 
   const ticketId = gerarTicketId();
@@ -1078,7 +636,14 @@ async function analisarTicket() {
   tidEl.textContent = ticketId;
   tidEl.style.display = '';
 
-  const systemPrompt = `Você é um agente especialista em triagem de chamados de suporte de uma empresa de pagamentos. Analise o chamado abaixo e retorne APENAS um JSON válido, sem markdown.
+  const prompt = `Você é um agente especialista em triagem de chamados de suporte de uma empresa de pagamentos. Analise o chamado abaixo e retorne APENAS um JSON válido, sem markdown.
+${operationContext ? `\nCONTEXTO DA OPERAÇÃO (use sempre como referência):\n${operationContext}\n` : ''}
+CHAMADO:
+- Descrição: ${texto}
+- Cliente: ${cliente}
+- Canal: ${canal}
+- Módulo/Sistema: ${modulo}
+- Tentativas N1 já realizadas: ${tentativas}
 
 Retorne este JSON exato (sem campos extras, sem markdown):
 {
@@ -1114,44 +679,28 @@ CRITÉRIOS DE RESPONSABILIDADE:
 - cliente: problema causado pelo próprio cliente (má configuração, saldo insuficiente, limite do cartão, dados errados).
 - externo: problema em serviço de terceiro (banco emissor, bandeira fora do ar, SEFAZ, gateway).`;
 
-  const userMessage = `${operationContext ? `CONTEXTO DA OPERAÇÃO (use sempre como referência):\n${operationContext}\n\n` : ''}CHAMADO:
-- Descrição: ${texto}
-- Cliente: ${cliente}
-- Canal: ${canal}
-- Módulo/Sistema: ${modulo}
-- Tentativas N1 já realizadas: ${tentativas}`;
-
-  const supabase = getSupabase();
-  const { data: { session } } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
-  if (!session?.access_token) {
-    document.getElementById('loading-state').style.display = 'none';
-    document.getElementById('empty-state').style.display = 'flex';
-    document.getElementById('empty-state').innerHTML = '<div class="state-icon">🔒</div><div class="state-title">Faça login</div><div class="state-sub">É preciso estar logado para analisar chamados.</div>';
-    btn.disabled = false;
-    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Analisar Chamado';
-    return;
-  }
-
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/triar-chamado`, {
+    const GEMINI_KEY = "AIzaSyDpjpwuddmnLK-IxK6qcFJ3QO1UJ1pOuKI";
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify({ systemPrompt, userMessage }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 1500 }
+      })
     });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data?.error || res.statusText || "Erro na análise");
-    }
-    const rawText = data.text || "";
+
+    const data = await response.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
     const clean = rawText.replace(/```json|```/g, '').trim();
     const result = JSON.parse(clean);
     currentAnalysis = { ...result, ticketId, texto };
     renderResult(result);
-    await saveToSupabase(result, ticketId, texto, cliente, canal, modulo, tentativas);
-    await loadHistoryFromSupabase();
+
+    history.push({ resumo: result.resumo, verdict: result.verdict });
+    if (history.length > 20) history.shift();
+    try { localStorage.setItem('th', JSON.stringify(history)); } catch(e){}
+    renderHistory();
 
   } catch(err) {
     document.getElementById('loading-state').style.display = 'none';
