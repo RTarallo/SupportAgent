@@ -40,6 +40,12 @@ add column if not exists slack_channel text,
 add column if not exists verdict_final text,
 add column if not exists resolvido_em timestamptz;
 
+-- Post mortem ao concluir
+alter table public.chamados
+add column if not exists post_mortem text,
+add column if not exists post_mortem_autor text,
+add column if not exists post_mortem_em timestamptz;
+
 -- Remove policies antigas se existirem
 drop policy if exists "Permitir insert anon" on chamados;
 drop policy if exists "Permitir select anon" on chamados;

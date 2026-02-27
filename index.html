@@ -306,6 +306,10 @@
     padding: 11px 14px; font-size: 12px; color: var(--primary); line-height: 1.6;
   }
   #ctx-textarea { min-height: 240px; font-size: 13px; line-height: 1.7; }
+  .postmortem-counter { font-size: 11px; color: var(--medium); margin-top: 4px; }
+  .postmortem-counter.valid { color: #03733F; font-weight: 600; }
+  #postmortem-textarea { min-height: 120px; font-size: 13px; line-height: 1.6; resize: vertical; border: 1px solid var(--light); border-radius: 10px; padding: 12px 14px; font-family: inherit; transition: border-color 0.2s; }
+  #postmortem-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(56,61,174,0.15); }
 
   /* Login screen */
   .login-screen {
@@ -475,9 +479,9 @@
           <span class="card-header-title" id="summary-ticket-id">—</span>
           <span class="chip" id="summary-priority-chip">—</span>
           <span id="summary-status-badge" class="status-badge" style="margin-left:2px;"></span>
-          <button type="button" class="btn-resolve" id="summary-btn-marcar-resolvido" style="margin-left:auto;display:none;" onclick="marcarResolvido()">
+          <button type="button" class="btn-resolve" id="summary-btn-concluir" style="margin-left:auto;display:none;" onclick="abrirModalPostMortem()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            Marcar como Resolvido
+            Concluir Chamado
           </button>
         </div>
         <div class="card-body">
@@ -488,9 +492,14 @@
           <div class="section-label">Diagnóstico</div>
           <div class="section-text" id="summary-diagnostico">—</div>
           <div class="section-label" style="margin-top:12px">Próximos passos</div>
-          <div class="section-text" id="summary-passos">—</div>
+          <div id="detalhe-passos"></div>
           <div class="section-label" style="margin-top:12px">Tags</div>
           <div id="summary-tags" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          <div id="summary-postmortem-section" style="display:none;margin-top:14px;">
+            <div class="section-label">POST MORTEM</div>
+            <div class="section-text" id="summary-postmortem-text"></div>
+            <div style="font-size:11px;color:var(--medium);margin-top:6px;" id="summary-postmortem-meta"></div>
+          </div>
           <div id="summary-resolved-info" style="margin-top:14px;display:none;font-size:12px;font-weight:600;"></div>
           <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;" id="summary-classify-area">
             <button type="button" class="btn-resolve" id="summary-btn-n2" onclick="classificarChamado('N2')">
@@ -664,6 +673,36 @@ Integrações críticas: Stripe, SendGrid, AWS S3."></textarea>
   </div>
 </div>
 
+<!-- Post Mortem Modal -->
+<div class="modal-overlay" id="postmortem-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div>
+        <div class="modal-head-title">Concluir Chamado</div>
+        <div class="modal-head-sub">Registre o post mortem antes de fechar</div>
+      </div>
+      <button class="btn-close" onclick="fecharModalPostMortem()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label">O que foi identificado e feito?</label>
+        <textarea id="postmortem-textarea" placeholder="Descreva o que foi identificado, as ações tomadas e o resultado..." rows="5" minlength="20"></textarea>
+        <div class="postmortem-counter" id="postmortem-counter">0 caracteres — mínimo 20</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="fecharModalPostMortem()">Cancelar</button>
+      <button class="btn-primary" id="postmortem-btn-concluir" disabled onclick="confirmarPostMortem()" style="margin-left:auto;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Concluir
+      </button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /app-wrap -->
 
 <script>
@@ -687,7 +726,7 @@ function getSupabase() {
 async function loadHistoryFromSupabase() {
   const supabase = getSupabase();
   if (!supabase) return;
-  const { data: rows } = await supabase.from('chamados').select('id, ticket_id, created_at, cliente, canal, modulo, resumo, verdict, prioridade, diagnostico, passos, tags, verdict_final, resolvido_em').order('created_at', { ascending: false });
+  const { data: rows } = await supabase.from('chamados').select('id, ticket_id, created_at, cliente, canal, modulo, resumo, verdict, prioridade, diagnostico, passos, tags, verdict_final, resolvido_em, post_mortem, post_mortem_autor, post_mortem_em').order('created_at', { ascending: false });
   if (rows?.length) history = rows;
   else history = [];
   renderHistory();
@@ -871,6 +910,9 @@ document.getElementById('ctx-textarea').addEventListener('input', atualizarChars
 document.getElementById('ctx-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('ctx-modal')) fecharContexto();
 });
+document.getElementById('postmortem-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('postmortem-modal')) fecharModalPostMortem();
+});
 
 function escapeHtml(s) {
   const d = document.createElement('div');
@@ -953,17 +995,34 @@ function mostrarResumoChamado(id) {
   document.getElementById('summary-meta').textContent = `Cliente: ${c.cliente || '—'}  ·  Canal: ${c.canal || '—'}  ·  Módulo: ${c.modulo || '—'}  ·  ${created}`;
   document.getElementById('summary-resumo').textContent = c.resumo || '—';
   document.getElementById('summary-diagnostico').textContent = c.diagnostico || '—';
-  const passos = Array.isArray(c.passos) ? c.passos : [];
-  document.getElementById('summary-passos').textContent = passos.length ? passos.map((p, i) => `${i + 1}. ${p}`).join('\n') : '—';
+
+  const passosArray = Array.isArray(c.passos) ? c.passos : [];
+  const passosHtml = passosArray.map((p, i) => `
+    <div class="step-item">
+      <div class="step-num">${i + 1}</div>
+      <div class="step-text">${escapeHtml(typeof p === 'string' ? p : String(p))}</div>
+    </div>
+  `).join('');
+  document.getElementById('detalhe-passos').innerHTML = passosHtml || '—';
+
   const tags = Array.isArray(c.tags) ? c.tags : [];
   document.getElementById('summary-tags').innerHTML = tags.length ? tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('') : '—';
 
+  const pmSection = document.getElementById('summary-postmortem-section');
+  if (c.resolvido_em) {
+    pmSection.style.display = 'block';
+    document.getElementById('summary-postmortem-text').textContent = c.post_mortem || '—';
+    const pmDate = c.post_mortem_em ? new Date(c.post_mortem_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    document.getElementById('summary-postmortem-meta').textContent = (c.post_mortem_autor ? `Registrado por ${c.post_mortem_autor}` : '') + (pmDate ? ` · ${pmDate}` : '');
+  } else {
+    pmSection.style.display = 'none';
+  }
+
   const riEl = document.getElementById('summary-resolved-info');
   const caEl = document.getElementById('summary-classify-area');
-  const btnMarcar = document.getElementById('summary-btn-marcar-resolvido');
+  const btnConcluir = document.getElementById('summary-btn-concluir');
 
   if (c.resolvido_em) {
-    // Totalmente resolvido
     const res = new Date(c.resolvido_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     const icon = c.verdict_final === 'N3' ? '🔺' : '✅';
     const label = c.verdict_final === 'N3' ? 'Escalado para N3' : 'Classificado como N2';
@@ -971,23 +1030,21 @@ function mostrarResumoChamado(id) {
     riEl.innerHTML = `${icon} ${label} · Resolvido em ${res}`;
     riEl.style.color = c.verdict_final === 'N3' ? '#D5164F' : '#03733F';
     caEl.style.display = 'none';
-    btnMarcar.style.display = 'none';
+    btnConcluir.style.display = 'none';
   } else if (c.verdict_final) {
-    // Classificado mas ainda não resolvido
     const icon = c.verdict_final === 'N3' ? '🔺' : '🔵';
     const label = c.verdict_final === 'N3' ? 'Escalado para N3' : 'Classificado como N2';
     riEl.style.display = 'block';
-    riEl.innerHTML = `${icon} ${label} · aguardando resolução`;
+    riEl.innerHTML = `${icon} ${label} · aguardando conclusão`;
     riEl.style.color = c.verdict_final === 'N3' ? '#D5164F' : '#0F2D85';
     caEl.style.display = 'none';
-    btnMarcar.style.display = 'inline-flex';
-    btnMarcar.disabled = false;
-    btnMarcar.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Marcar como Resolvido';
+    btnConcluir.style.display = 'inline-flex';
+    btnConcluir.disabled = false;
+    btnConcluir.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Concluir Chamado';
   } else {
-    // Sem classificação ainda
     riEl.style.display = 'none';
     caEl.style.display = 'flex';
-    btnMarcar.style.display = 'none';
+    btnConcluir.style.display = 'none';
     document.getElementById('summary-btn-n2').disabled = false;
     document.getElementById('summary-btn-n3').disabled = false;
   }
@@ -1020,26 +1077,69 @@ async function classificarChamado(tipo) {
   mostrarResumoChamado(currentSummaryId);
 }
 
-async function marcarResolvido() {
+const MIN_POSTMORTEM_CHARS = 20;
+
+function abrirModalPostMortem() {
+  const modal = document.getElementById('postmortem-modal');
+  const ta = document.getElementById('postmortem-textarea');
+  const counter = document.getElementById('postmortem-counter');
+  const btn = document.getElementById('postmortem-btn-concluir');
+  ta.value = '';
+  counter.textContent = '0 caracteres — mínimo 20';
+  counter.classList.remove('valid');
+  btn.disabled = true;
+  modal.classList.add('open');
+  setTimeout(() => ta.focus(), 100);
+}
+
+function fecharModalPostMortem() {
+  document.getElementById('postmortem-modal').classList.remove('open');
+}
+
+function atualizarContadorPostMortem() {
+  const ta = document.getElementById('postmortem-textarea');
+  const counter = document.getElementById('postmortem-counter');
+  const btn = document.getElementById('postmortem-btn-concluir');
+  const n = (ta.value || '').trim().length;
+  counter.textContent = n >= MIN_POSTMORTEM_CHARS ? `${n} caracteres` : `${n} caracteres — mínimo ${MIN_POSTMORTEM_CHARS}`;
+  counter.classList.toggle('valid', n >= MIN_POSTMORTEM_CHARS);
+  btn.disabled = n < MIN_POSTMORTEM_CHARS;
+}
+
+async function confirmarPostMortem() {
   if (!currentSummaryId) return;
   const supabase = getSupabase();
   if (!supabase) return;
 
-  const btn = document.getElementById('summary-btn-marcar-resolvido');
-  btn.disabled = true;
-  btn.innerHTML = '<div style="width:12px;height:12px;border:2px solid rgba(3,115,63,0.3);border-top-color:#03733F;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;"></div> Salvando...';
+  const ta = document.getElementById('postmortem-textarea');
+  const text = (ta.value || '').trim();
+  if (text.length < MIN_POSTMORTEM_CHARS) return;
 
+  const btn = document.getElementById('postmortem-btn-concluir');
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;"></div> Salvando...';
+
+  const { data: { user } } = await supabase.auth.getUser();
   const now = new Date().toISOString();
-  const { error } = await supabase.from('chamados').update({ resolvido_em: now }).eq('id', currentSummaryId);
+  const payload = {
+    post_mortem: text,
+    post_mortem_autor: user?.email || '',
+    post_mortem_em: now,
+    resolvido_em: now,
+  };
+  const { error } = await supabase.from('chamados').update(payload).eq('id', currentSummaryId);
+  fecharModalPostMortem();
   if (error) {
     btn.disabled = false;
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Marcar como Resolvido';
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Concluir';
     return;
   }
-
   await loadHistoryFromSupabase();
   mostrarResumoChamado(currentSummaryId);
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Concluir';
 }
+
+document.getElementById('postmortem-textarea').addEventListener('input', atualizarContadorPostMortem);
 
 document.getElementById('summary-btn-back').addEventListener('click', () => {
   document.getElementById('summary-content').style.display = 'none';
